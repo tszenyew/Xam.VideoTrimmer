@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Grid x:Class="Global.VideoPlayer.TrimmerMediaPlayer"
+      xmlns="http://xamarin.com/schemas/2014/forms"
+      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+      xmlns:converters="clr-namespace:Global.VideoPlayer.Converters"
+      xmlns:vid="clr-namespace:Global.VideoPlayer;assembly=Global.VideoPlayer"
+      Style="{StaticResource TrimmerPlayerContainerStyle}">
+    <Grid.Resources>
+        <ResourceDictionary>
+            <converters:MediaStateToPlayButtonVisibilityConverter x:Key="MediaStateToPlayButtonVisibilityConverter" />
+            <Style x:Key="TrimmerPlayerContainerStyle" TargetType="Grid">
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="VerticalOptions" Value="FillAndExpand" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+            <Style x:Key="MediaPlayerStyle" TargetType="vid:VideoPlayer">
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="VerticalOptions" Value="FillAndExpand" />
+                <Setter Property="Aspect" Value="AspectFit" />
+                <Setter Property="AutoPlay" Value="False" />
+                <Setter Property="Loop" Value="False" />
+                <Setter Property="NativeControls" Value="False" />
+                <Setter Property="AudioFocus" Value="True" />
+            </Style>
+
+            <Style x:Key="PlayButtonStyle" TargetType="Image">
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="Aspect" Value="AspectFit" />
+                <Setter Property="HeightRequest" Value="70" />
+                <Setter Property="WidthRequest" Value="70" />
+                <Setter Property="InputTransparent" Value="True" />
+            </Style>
+            <Style x:Key="BtnContainerStyle" TargetType="ContentView">
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="VerticalOptions" Value="FillAndExpand" />
+            </Style>
+            <Style x:Key="LoadingStyle" TargetType="ActivityIndicator">
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="IsRunning" Value="True" />
+                <Setter Property="HeightRequest" Value="100" />
+            </Style>
+            <Style x:Key="PlayBtnFrameStyle" TargetType="Frame">
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="HasShadow" Value="False" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="WidthRequest" Value="50" />
+                <Setter Property="CornerRadius" Value="25" />
+                <Setter Property="Padding" Value="15" />
+                <Setter Property="BackgroundColor" Value="#66666666" />
+            </Style>
+        </ResourceDictionary>
+
+    </Grid.Resources>
+    <vid:VideoPlayer x:Name="MediaPlayer"
+                     x:FieldModifier="Public"
+                     AutoPlay="False"
+                     NativeControls="True"
+                     Style="{StaticResource MediaPlayerStyle}" />
+    <ContentView Style="{StaticResource BtnContainerStyle}">
+        <Frame IsVisible="{Binding Status, Source={x:Reference MediaPlayer}, Converter={StaticResource MediaStateToPlayButtonVisibilityConverter}}" Style="{StaticResource PlayBtnFrameStyle}">
+            <Polygon Fill="#FFFFFF"
+                     HorizontalOptions="Center"
+                     Points="0,0 30,15, 0,30"
+                     StrokeLineJoin="Round"
+                     StrokeThickness="0"
+                     VerticalOptions="Center" />
+        </Frame>
+        <ContentView.GestureRecognizers>
+            <TapGestureRecognizer Tapped="Player_Tapped" />
+        </ContentView.GestureRecognizers>
+    </ContentView>
+    <ActivityIndicator x:Name="LoadingView" Style="{StaticResource LoadingStyle}" />
+</Grid>
+

@@ -160,7 +160,16 @@ namespace Global.VideoPlayer.Droid
                 SetSource();
             else if (args.PropertyName == Global.VideoPlayer.VideoPlayer.PositionProperty.PropertyName)
                 if (Math.Abs(_videoView.CurrentPosition - Element.Position.TotalMilliseconds) > 1000)
-                    _videoView.SeekTo((int) Element.Position.TotalMilliseconds);
+                {
+                    if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O &&  _mediaPlayer != null)
+                    {
+                        _mediaPlayer.SeekTo((int)Element.Position.TotalMilliseconds, MediaPlayerSeekMode.Closest);
+                    }
+                    else
+                    {
+                        _videoView.SeekTo((int)Element.Position.TotalMilliseconds);
+                    }
+                }
         }
 
         private void SetAreTransportControlsEnabled()

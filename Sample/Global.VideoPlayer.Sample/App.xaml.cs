@@ -56,19 +56,23 @@ namespace Global.VideoPlayer.Sample
             var toSelectWebVideoPageBtn = new Button {Text = "Select Web Video Page"};
             toSelectWebVideoPageBtn.Clicked += (sender, e) => { Navigation.PushAsync(new SelectWebVideoPage()); };
 
+            var toVideoTrimmerPageBtn = new Button { Text = "Video Trimmer Page" };
+            toVideoTrimmerPageBtn.Clicked += (sender, e) => { Navigation.PushAsync(new SelectVideoPage()); };
+
             Content = new ScrollView
             {
                 Content = new StackLayout
                 {
                     Children =
                     {
+                        toVideoTrimmerPageBtn,
                         toBindToVideoPlayerPageBtn,
                         toCustomPositionBarPageBtn,
                         toCustomTransportPageBtn,
                         toPlayLibraryVideoPageBtn,
                         toPlayVideoResourcePageBtn,
                         toPlayWebVideoPageBtn,
-                        toSelectWebVideoPageBtn
+                        toSelectWebVideoPageBtn,
                     }
                 }
             };

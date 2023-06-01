@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Global.VideoPlayer.Sample.SelectVideoPage"
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <StackLayout Spacing="15">
+        <Frame Padding="24"
+               BackgroundColor="#2196F3"
+               CornerRadius="0">
+            <Label FontSize="36"
+                   HorizontalTextAlignment="Center"
+                   Text="Video Trimmer Page!"
+                   TextColor="White" />
+        </Frame>
+        <Label Padding="30,10,30,10"
+               FontSize="Title"
+               Text="Select Video" />
+        <Label x:Name="FileName"
+               Padding="30,10,30,10"
+               FontSize="Medium"
+               Text="" />
+        <Button Padding="20,5"
+                Clicked="Button_Clicked"
+                HorizontalOptions="Center"
+                Text="Select"
+                VerticalOptions="Center " />
+
+    </StackLayout>
+
+</ContentPage>
+

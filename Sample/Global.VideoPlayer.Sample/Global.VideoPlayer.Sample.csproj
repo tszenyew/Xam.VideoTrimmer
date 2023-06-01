@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -10,10 +10,31 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MimeTypes" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Xamarin.CommunityToolkit" Version="1.3.2" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.5" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2244" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Global.VideoPlayer\Global.VideoPlayer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="SelectVideoPage.xaml.cs">
+      <DependentUpon>SelectVideoPage.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="SelectVideoPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="VideoTrimmingPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage x:Class="Global.VideoPlayer.Sample.VideoTrimmingPage"
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:view="clr-namespace:Global.VideoPlayer;assembly=Global.VideoPlayer"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             x:Name="trimmer"
+             NavigationPage.HasNavigationBar="False">
+    <ContentPage.Content>
+        <Grid x:Name="Container"
+              Padding="0,0,0,20"
+              BackgroundColor="#444444"
+              HorizontalOptions="FillAndExpand"
+              RowDefinitions="*,20,46"
+              RowSpacing="20"
+              VerticalOptions="FillAndExpand">
+
+            <view:TrimmerMediaPlayer x:Name="TrimmerPlayer"
+                                     Grid.Row="0"
+                                     HorizontalOptions="FillAndExpand"
+                                     VerticalOptions="FillAndExpand" />
+            <ImageButton BackgroundColor="White"
+                         Clicked="ImageButton_Clicked"
+                         HeightRequest=" 40"
+                         HorizontalOptions="End"
+                         VerticalOptions="Start"
+                         WidthRequest="40" />
+            <Label Grid.Row="1"
+                   FontSize="Small"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   TextColor="White"
+                   VerticalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding DisplayLowerValue, Source={x:Reference TrackContainer}}" />
+                        <Span Text=" - " />
+                        <Span Text="{Binding DisplayUpperValue, Source={x:Reference TrackContainer}}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Label x:Name="lblMediaSize"
+                   Grid.Row="1"
+                   Margin="10,0"
+                   FontSize="Micro"
+                   HorizontalOptions="End"
+                   HorizontalTextAlignment="End"
+                   Text="{Binding TrimmedSizeString, Source={x:Reference TrackContainer}}"
+                   TextColor="White"
+                   VerticalOptions="Center" />
+            <view:TrimmerContainer x:Name="TrackContainer" Grid.Row="2" />
+
+
+
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
+
