@@ -78,7 +78,7 @@ namespace Global.VideoPlayer.iOS
                 CMTimeRange timeRange = new CMTimeRange { Start = CMTime.FromSeconds(startTime.TotalSeconds, 600), Duration = CMTime.FromSeconds((endTime - startTime).TotalSeconds, 600) };
                 AVAsset asset = AVAsset.FromUrl(videoURL);
                 AVUrlAsset aVUrlAsset = (AVUrlAsset)asset;
-                AVAssetExportSession exporter = new AVAssetExportSession(asset, AVAssetExportSessionPreset.HighestQuality);
+                AVAssetExportSession exporter = new AVAssetExportSession(asset, AVAssetExportSessionPreset.LowQuality);
                 exporter.TimeRange = timeRange;
                 string exportFileType = AVFileType.Mpeg4;
                 NSUrl outputUrl = GetOutputURL("mp4");
