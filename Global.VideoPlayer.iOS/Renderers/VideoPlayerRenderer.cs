@@ -40,7 +40,7 @@ namespace Global.VideoPlayer.iOS
                     // Set Player property to AVPlayer
                     _player = new AVPlayer();
                     _playerViewController.Player = _player;
-                    _playerViewController.VideoGravity = (AVLayerVideoGravity) Element.Aspect;
+                    _playerViewController.VideoGravity = (AVLayerVideoGravity)Element.Aspect;
                     _player.Muted = true;
 
                     var x = _playerViewController.View;
@@ -99,12 +99,16 @@ namespace Global.VideoPlayer.iOS
             {
                 var controlPosition = ConvertTime(_player.CurrentTime);
 
+                var tolerance = CMTime.FromSeconds(0.1, 600);
                 if (Math.Abs((controlPosition - Element.Position).TotalSeconds) > 1)
-                    _player.Seek(CMTime.FromSeconds(Element.Position.TotalSeconds, 1));
+                {
+                    CMTime pos = CMTime.FromSeconds(Element.Position.TotalSeconds, 600);
+                    _player.Seek(pos, tolerance, tolerance);
+                }
             }
             else if (args.PropertyName == nameof(Element.Aspect))
             {
-                _playerViewController.VideoGravity = (AVLayerVideoGravity) Element.Aspect;
+                _playerViewController.VideoGravity = (AVLayerVideoGravity)Element.Aspect;
             }
         }
 
@@ -144,38 +148,39 @@ namespace Global.VideoPlayer.iOS
             switch (Element.Source)
             {
                 case UriVideoSource source:
-                {
-                    var uri = source.Uri;
-
-                    if (!string.IsNullOrWhiteSpace(uri)) asset = AVAsset.FromUrl(new NSUrl(uri));
-                    break;
-                }
-                case FileVideoSource source:
-                {
-                    var uri = source.File;
-
-                    if (!string.IsNullOrWhiteSpace(uri)) asset = AVAsset.FromUrl(new NSUrl(uri));
-                    break;
-                }
-                case ResourceVideoSource source:
-                {
-                    var path = source.Path;
-
-                    if (!string.IsNullOrWhiteSpace(path))
                     {
-                        var directory = Path.GetDirectoryName(path);
-                        var filename = Path.GetFileNameWithoutExtension(path);
-                        var extension = Path.GetExtension(path).Substring(1);
-                        var url = NSBundle.MainBundle.GetUrlForResource(filename, extension, directory);
-                        asset = AVAsset.FromUrl(url);
-                    }
+                        var uri = source.Uri;
 
-                    break;
-                }
+                        if (!string.IsNullOrWhiteSpace(uri)) asset = AVAsset.FromUrl(NSUrl.CreateFileUrl(uri,null));
+                        break;
+                    }
+                case FileVideoSource source:
+                    {
+                        var uri = source.File;
+
+                        if (!string.IsNullOrWhiteSpace(uri)) asset = AVAsset.FromUrl(NSUrl.CreateFileUrl(uri , null));
+                            break;
+                    }
+                case ResourceVideoSource source:
+                    {
+                        var path = source.Path;
+
+                        if (!string.IsNullOrWhiteSpace(path))
+                        {
+                            var directory = Path.GetDirectoryName(path);
+                            var filename = Path.GetFileNameWithoutExtension(path);
+                            var extension = Path.GetExtension(path).Substring(1);
+                            var url = NSBundle.MainBundle.GetUrlForResource(filename, extension, directory);
+                            asset = AVAsset.FromUrl(url);
+                        }
+
+                        break;
+                    }
             }
 
             if (asset != null)
             {
+                Console.WriteLine(asset.Playable);
                 _playerItem = new AVPlayerItem(asset);
                 _videoEndNotificationToken =
                     NSNotificationCenter.DefaultCenter.AddObserver(AVPlayerItem.DidPlayToEndTimeNotification,
@@ -213,12 +218,12 @@ namespace Global.VideoPlayer.iOS
                     break;
             }
 
-            ((IVideoPlayerController) Element).Status = videoStatus;
+            ((IVideoPlayerController)Element).Status = videoStatus;
 
             if (_playerItem == null) return;
 
-            ((IVideoPlayerController) Element).Duration = ConvertTime(_playerItem.Duration);
-            ((IElementController) Element).SetValueFromRenderer(Global.VideoPlayer.VideoPlayer.PositionProperty,
+            ((IVideoPlayerController)Element).Duration = ConvertTime(_playerItem.Duration);
+            ((IElementController)Element).SetValueFromRenderer(Global.VideoPlayer.VideoPlayer.PositionProperty,
                 ConvertTime(_playerItem.CurrentTime));
         }
 

@@ -5,7 +5,15 @@
              xmlns:view="clr-namespace:Global.VideoPlayer;assembly=Global.VideoPlayer"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
              x:Name="trimmer"
-             NavigationPage.HasNavigationBar="False">
+             NavigationPage.HasNavigationBar="True">
+    <ContentPage.Resources>
+        <Style x:Key="LoadingStyle" TargetType="ActivityIndicator">
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="IsRunning" Value="True" />
+            <Setter Property="HeightRequest" Value="100" />
+        </Style>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <Grid x:Name="Container"
               Padding="0,0,0,20"
@@ -48,8 +56,9 @@
                    Text="{Binding TrimmedSizeString, Source={x:Reference TrackContainer}}"
                    TextColor="White"
                    VerticalOptions="Center" />
-            <view:TrimmerContainer x:Name="TrackContainer" Grid.Row="2" />
+            <view:TrimmerView x:Name="TrackContainer" UpperThumbColor="Aqua" LowerThumbColor="GreenYellow"  Grid.Row="2" />
 
+            <ActivityIndicator x:Name="LoadingView" IsVisible="False" Style="{StaticResource LoadingStyle}" />
 
 
 

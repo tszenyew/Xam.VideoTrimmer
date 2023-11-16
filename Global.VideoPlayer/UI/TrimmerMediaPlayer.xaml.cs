@@ -15,18 +15,7 @@ namespace Global.VideoPlayer
 
         public void SetVideoSource(VideoSource mediaSource)
         {
-            LoadingView.IsVisible = true;
-            MediaPlayer.UpdateStatus += MediaPlayer_MediaOpened;
             MediaPlayer.Source = mediaSource;
-        }
-
-
-        private void MediaPlayer_MediaOpened(object sender, EventArgs e)
-        {
-            if (MediaPlayer.Status != VideoStatus.NotReady)
-            {
-                LoadingView.IsVisible = false;
-            }
         }
 
         void Player_Tapped(System.Object sender, System.EventArgs e)

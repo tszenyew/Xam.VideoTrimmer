@@ -4,32 +4,25 @@ using Xamarin.Forms.Shapes;
 
 namespace Global.VideoPlayer
 {
-	public class TrimmerThumb : Grid
+	internal class TrimmerThumb : Grid
 	{
 		public bool IsUpperThumb { get; private set; }
-		public Color IndicatorColor { get; private set; }
 		public PanGestureRecognizer panGesture { get; private set; }
-        const string defaultThumbColor = "#FF5733";
         Polygon indicator;
 
 
-        public TrimmerThumb(bool isUpperThumb , string indicatorColorHex = defaultThumbColor)
+        public TrimmerThumb(bool isUpperThumb )
         {
             this.IsUpperThumb = isUpperThumb;
-            this.IndicatorColor = Color.FromHex(indicatorColorHex);
-			Padding = new Thickness(10, 0);
+            Padding = new Thickness(15,0);
 			HeightRequest = 46;
-			this.RowDefinitions = new RowDefinitionCollection{ new RowDefinition { Height = new GridLength(46) }};
+			RowDefinitions = new RowDefinitionCollection{ new RowDefinition { Height = new GridLength(46) }};
             indicator = GetIndicator();
             panGesture = new PanGestureRecognizer();
-			this.GestureRecognizers.Add(panGesture);
+			GestureRecognizers.Add(panGesture);
             Children.Add(indicator) ;
 		}
 
-		public void SetIndicatorColor(Color color)
-		{
-			indicator.Fill = new SolidColorBrush(color);
-		}
 
         private Polygon GetIndicator()
         {
@@ -48,7 +41,7 @@ namespace Global.VideoPlayer
                     new Point(6, 46),
                     new Point(0, 46),
                 },
-                    Fill = new SolidColorBrush(Color.FromHex(defaultThumbColor)),
+                    Fill = new SolidColorBrush(Color.FromHex(TrimmerView.defaultThumbColor)),
                     StrokeThickness = 0,
                 };
             }
@@ -67,11 +60,39 @@ namespace Global.VideoPlayer
                     new Point(3, 3),
                     new Point(0, 3),
                 },
-                    Fill = new SolidColorBrush(Color.FromHex(defaultThumbColor)),
+                    Fill = new SolidColorBrush(Color.FromHex(TrimmerView.defaultThumbColor)),
                     StrokeThickness = 0,
                 };
             }
         }
-	}
+
+        internal void SetupThumb(TrimmerView trimmerView)
+        {
+            if (IsUpperThumb)
+            {
+                AbsoluteLayout.SetLayoutFlags(this, AbsoluteLayoutFlags.None);
+                AbsoluteLayout.SetLayoutBounds(this, new Xamarin.Forms.Rectangle(0, -3, 36, 46));
+                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.UpperThumbColor), source: trimmerView));
+                SetBinding(VisualElement.TranslationXProperty, new Binding
+                {
+                    Source = trimmerView,
+                    Path = nameof(TrimmerView.UpperThumbX),
+                    Mode = BindingMode.OneWay
+                });
+            }
+            else
+            {
+                AbsoluteLayout.SetLayoutFlags(this, AbsoluteLayoutFlags.None);
+                AbsoluteLayout.SetLayoutBounds(this, new Xamarin.Forms.Rectangle(0, -3, 36, 46));
+                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.LowerThumbColor), source: trimmerView));
+                SetBinding(VisualElement.TranslationXProperty, new Binding
+                {
+                    Source = trimmerView,
+                    Path = nameof(TrimmerView.LowerThumbX),
+                    Mode = BindingMode.OneWay
+                });
+            }
+        }
+    }
 }
 

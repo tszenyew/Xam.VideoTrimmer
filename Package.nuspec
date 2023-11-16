@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Xam.VideoTrimmer</id>
+    <version>1.0.1</version>
+    <authors>TimeTec Mobile Team</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <!-- <icon>icon.png</icon> -->
+    <description>Xamarin Video Trimmer built with ffmpeg on Android and AVFoundation on IOS based on Global.Video.Player</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <dependencies>
+           <group targetFramework="MonoAndroid8.1">
+           </group>
+           <group targetFramework="Xamarin.iOS1.0">
+           </group>
+           <group targetFramework=".NETStandard2.0">
+              <dependency id="NETStandard.Library" version="2.0.0" />
+          </group>
+        </dependencies> 
+  </metadata>
+  <files>
+        <!-- Android -->
+        <file src="Global.VideoPlayer/bin/Release/monoandroid/Global.VideoPlayer.Android.dll" target="lib/MonoAndroid81/Global.VideoPlayer.Android.dll" />
+        <file src="Global.VideoPlayer/bin/Release/monoandroid/Global.VideoPlayer.Android.pdb" target="lib/MonoAndroid81/Global.VideoPlayer.Android.pdb" />
+        <file src="Global.VideoPlayer/bin/Release/monoandroid/FFmpegBindingLib.dll" target="lib/MonoAndroid81/FFmpegBindingLib.dll" />
+        <file src="Global.VideoPlayer/bin/Release/monoandroid/FFmpegBindingLib.pdb" target="lib/MonoAndroid81/FFmpegBindingLib.pdb" />
+        <file src="Global.VideoPlayer/bin/Release/monoandroid/Global.VideoPlayer.dll" target="lib/MonoAndroid81/Global.VideoPlayer.dll" />
+        <file src="Global.VideoPlayer/bin/Release/monoandroid/Global.VideoPlayer.pdb" target="lib/MonoAndroid81/Global.VideoPlayer.pdb" />
+
+        <!-- iOS -->
+        <file src="Global.VideoPlayer/bin/Release/Xamarin.iOS10/Global.VideoPlayer.iOS.dll" target="lib/Xamarin.iOS10/Global.VideoPlayer.iOS.dll" />
+        <file src="Global.VideoPlayer/bin/Release/Xamarin.iOS10/Global.VideoPlayer.dll" target="lib/Xamarin.iOS10/Global.VideoPlayer.dll" />
+        <file src="Global.VideoPlayer/bin/Release/Xamarin.iOS10/Global.VideoPlayer.pdb" target="lib/Xamarin.iOS10/Global.VideoPlayer.pdb" />
+        <!-- <file src="Global.VideoPlayer/bin/Release/Xamarin.iOS10/Global.VideoPlayer.iOS.pdb" target="lib/Xamarin.iOS10/Global.VideoPlayer.iOS.pdb" /> -->
+
+        <!-- netstandard2.0 -->
+        <file src="Global.VideoPlayer/bin/Release/netstandard2.0/Global.VideoPlayer.dll" target="lib/netstandard2.0/Global.VideoPlayer.dll" />
+        <file src="Global.VideoPlayer/bin/Release/netstandard2.0/Global.VideoPlayer.pdb" target="lib/netstandard2.0/Global.VideoPlayer.pdb" />
+
+    </files>
+</package>

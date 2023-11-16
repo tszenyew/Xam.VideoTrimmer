@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>te</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>te</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Access to camera needed </string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
@@ -21,11 +27,11 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>MinimumOSVersion</key>
-	<string>8.0</string>
+	<string>12.0</string>
 	<key>CFBundleDisplayName</key>
 	<string>Global.VideoPlayer.Sample</string>
 	<key>CFBundleIdentifier</key>
-	<string>phenek.Global.VideoPlayer</string>
+	<string>com.timetec.parking</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>UILaunchStoryboardName</key>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Global.VideoPlayer;
 using Xamarin.CommunityToolkit.Core;
+using Xamarin.CommunityToolkit.Extensions;
 using Xamarin.CommunityToolkit.UI.Views;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -35,14 +36,9 @@ namespace Global.VideoPlayer.Sample
             GetMediaInfo();
         }
 
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            SetupPlayer();
-        }
-
         private void GetMediaInfo()
         {
+            TrackContainer.SetMediaPlayer(TrimmerPlayer.MediaPlayer);
             Task.Run(async () =>
             {
                 if (string.IsNullOrEmpty(videoPath))
@@ -55,48 +51,34 @@ namespace Global.VideoPlayer.Sample
                         await stream.CopyToAsync(newStream);
                     videoPath = filePathName;
                 }
-
-                mediaInfo = DependencyService.Get<IVideoService>().GetMediaStreamInfo(videoPath);
-                if (mediaInfo == null || mediaInfo.Count == 0)
-                {
-                    return;
-                }
-                TrackContainer.SetMediaInfo(mediaInfo);
-                TrackContainer.SetupThumnail(videoPath, 120, 120);
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    TrackContainer.SetMediaPlayer(TrimmerPlayer.MediaPlayer);
-                });
+                TrackContainer.SetMediaInfo(videoPath);
             });
         }
 
 
 
-        private void SetupPlayer()
-        {
-            if(!IsVideoSetuped)
-                TrimmerPlayer.SetVideoSource(VideoSource.FromFile(videoPath));
-        }
-
-        string outputFilename;
         private void ImageButton_Clicked(object sender, EventArgs e)
         {
-            TrimmerPlayer.MediaPlayer.Stop();
-            outputFilename = Path.Combine(FileSystem.CacheDirectory, $"output_{DateTime.Now.ToString(@"MMddyy_hhmmss")}.mp4");
-            DependencyService.Get<IVideoService>().TrimVideo(videoPath, TrackContainer.TrimStartTime, TrackContainer.TrimEndTime, outputFilename, OnTrimResulted);
+            (sender as ImageButton).IsEnabled = false;
+            LoadingView.IsVisible = true;
+            TrackContainer.TrimCurrentVideo(OnTrimResulted);
+            (sender as ImageButton).IsEnabled = true;
+
         }
 
-        private void OnTrimResulted(bool IsSuccess)
+        private void OnTrimResulted(bool IsSuccess, string outputPath)
         {
-            bool IsExist = File.Exists(outputFilename);
+            bool IsExist = File.Exists(outputPath);
             Console.WriteLine(IsSuccess + "  " + IsExist);
-            if (IsSuccess && IsExist)
+            Device.BeginInvokeOnMainThread(async () =>
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                LoadingView.IsVisible = false;
+
+                if (IsSuccess && IsExist)
                 {
-                    await Navigation.PushAsync(new VideoTrimmingPage(outputFilename));
-                });
-            }
+                    await Navigation.PushAsync(new VideoTrimmingPage(outputPath));
+                }
+            });
         }
     }
 }

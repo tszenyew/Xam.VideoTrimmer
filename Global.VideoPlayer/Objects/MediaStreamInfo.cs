@@ -19,9 +19,6 @@ namespace Global.VideoPlayer
 
         public double GetStreamsBytePerSecond()
         {
-            Console.WriteLine(this.Count);
-            Console.WriteLine(this[0].bit_rate);
-            
             return this.Sum(x => x.bit_rate)/8000;
         }
     }

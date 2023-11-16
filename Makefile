@@ -24,8 +24,8 @@ build:
 nuget:
 		$(PACK) $(NUSPEC)
 
-clean:
-		$(RM) $(CSRC)
+#clean:
+#		$(RM) $(CSRC)
 
-.PHONY:         clean fclean
+#.PHONY: build nuget
  

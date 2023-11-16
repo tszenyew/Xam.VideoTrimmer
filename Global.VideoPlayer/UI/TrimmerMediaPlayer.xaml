@@ -35,12 +35,6 @@
                 <Setter Property="HorizontalOptions" Value="FillAndExpand" />
                 <Setter Property="VerticalOptions" Value="FillAndExpand" />
             </Style>
-            <Style x:Key="LoadingStyle" TargetType="ActivityIndicator">
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="VerticalOptions" Value="Center" />
-                <Setter Property="IsRunning" Value="True" />
-                <Setter Property="HeightRequest" Value="100" />
-            </Style>
             <Style x:Key="PlayBtnFrameStyle" TargetType="Frame">
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -57,7 +51,6 @@
     <vid:VideoPlayer x:Name="MediaPlayer"
                      x:FieldModifier="Public"
                      AutoPlay="False"
-                     NativeControls="True"
                      Style="{StaticResource MediaPlayerStyle}" />
     <ContentView Style="{StaticResource BtnContainerStyle}">
         <Frame IsVisible="{Binding Status, Source={x:Reference MediaPlayer}, Converter={StaticResource MediaStateToPlayButtonVisibilityConverter}}" Style="{StaticResource PlayBtnFrameStyle}">
@@ -72,6 +65,5 @@
             <TapGestureRecognizer Tapped="Player_Tapped" />
         </ContentView.GestureRecognizers>
     </ContentView>
-    <ActivityIndicator x:Name="LoadingView" Style="{StaticResource LoadingStyle}" />
 </Grid>
 

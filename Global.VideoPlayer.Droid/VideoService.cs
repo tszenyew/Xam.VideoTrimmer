@@ -19,6 +19,8 @@ using Java.IO;
 using Global.VideoPlayer.Droid;
 using Newtonsoft.Json;
 using Java.Nio.FileNio;
+using Xamarin.Forms.Platform.Android;
+using Android.Content;
 
 [assembly: Dependency(typeof(VideoService))]
 namespace Global.VideoPlayer.Droid
@@ -47,13 +49,56 @@ namespace Global.VideoPlayer.Droid
             catch (Exception ex)
             {
                 System.Console.WriteLine(ex.Message);
-                return null;
+                throw ex;
             }
         }
 
-        public ImageSource GetVideoThumbnail(string videoPath, int targetH, int targetW, int timeMs)
+        public void GetVideoThumbnail(string videoPath, double videoDuration, List<TrackImageVM> imageVMs)
         {
-            Bitmap thumbnail = CreateThumnails(videoPath, targetH, targetW, timeMs);
+            if (imageVMs.Count() <= 0)
+                return;
+            int numberOfThumnail = imageVMs.Count();
+            double frameInterval = (videoDuration / numberOfThumnail) * 1000;
+
+            for (int i = 0; i < imageVMs.Count(); i++)
+            {
+                int frameTimeMs = (int)(i * frameInterval);
+                Bitmap thumbnail = CreateThumnails(videoPath, frameTimeMs);
+                using (var stream = new MemoryStream())
+                {
+                    thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+                    byte[] bytes = stream.ToArray();
+                    imageVMs[i].ImgSrc = ImageSource.FromStream(() => new MemoryStream(bytes));
+                }
+            }
+        }
+
+
+        public void TrimVideo(string videoPath, TimeSpan startTime, TimeSpan endTime, Action<bool, string> onTrimResulted)
+        {
+            try
+            {
+                FFmpegKitConfig.IgnoreSignal(Com.Arthenica.Ffmpegkit.Signal.Sigxcpu);
+                string outputPath = GetOutputFilePath();
+                string startT = startTime.ToString(@"hh\:mm\:ss\.fff");
+                string endT = endTime.ToString(@"hh\:mm\:ss\.fff");
+                //string cmd = $"-ss {startTime.ToString(@"hh\:mm\:ss")} -i \"{videoPath}\"  -to {endTime.ToString(@"hh\:mm\:ss")} -c copy \"{outputPath}\"";
+                //string cmd = $"-i \"{videoPath}\"  -vf \"trim=start={startT}:end={endT}\" -af \"atrim=start={startT}:end={endT}\" -c:v libx264 -preset faster -c:a aac \"{outputPath}\"";
+                //string cmd = $"-ss {startT} -i \"{videoPath}\" -to {endT} -filter:v \"scale=\'min(1280,iw):-2\'\" -c:v libx264 -preset faster -c:a aac \"{outputPath}\"";
+                string cmd = $"-ss {startT} -i \"{videoPath}\" -to {endT} -filter:v \"scale=\'min(1280,iw):-2\'\" -c:v libx265 -crf 28 -preset faster \"{outputPath}\"";
+
+                FFmpegSession ffmpegSession = FFmpegKit.ExecuteAsync(cmd, new FFmpegCallback(onTrimResulted, outputPath));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+                onTrimResulted.Invoke(false, ex.Message);
+            }
+        }
+
+        private ImageSource GetThumbnailImageSource(string videoPath, int timeMs)
+        {
+            Bitmap thumbnail = CreateThumnails(videoPath, timeMs);
             using (var stream = new MemoryStream())
             {
                 thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
@@ -62,29 +107,10 @@ namespace Global.VideoPlayer.Droid
             }
         }
 
-        public void TrimVideo(string videoPath, TimeSpan startTime, TimeSpan endTime, string outputPath, Action<bool> onTrimResulted)
+        private string GetOutputFilePath()
         {
-            Task.Run(() =>
-            {
-
-                try
-                {
-                    FFmpegKitConfig.IgnoreSignal(Com.Arthenica.Ffmpegkit.Signal.Sigxcpu);
-                    string cmd = $"-i \"{videoPath}\" -ss {startTime.ToString(@"hh\:mm\:ss")} -to {endTime.ToString(@"hh\:mm\:ss")} -c:v libx264 -c:a aac \"{outputPath}\"";
-                    FFmpegSession ffmpegSession = FFmpegKit.ExecuteAsync(cmd, new FFmpegCallback(onTrimResulted));
-                    if (ffmpegSession.ReturnCode.IsValueSuccess)
-                    {
-                        string mediaInfoString = ffmpegSession.GetAllLogsAsString(300);
-                        System.Console.WriteLine(mediaInfoString);
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine(ex.Message);
-                    onTrimResulted.Invoke(false);
-                }
-            });
+            string cacheDirc = Android.App.Application.Context.CacheDir.AbsolutePath;
+            return System.IO.Path.Combine(cacheDirc, $"output_{DateTime.Now.ToString(@"MMddyy_hhmmss")}.mp4");
         }
 
         private static void setDataSource(string video, MediaMetadataRetriever retriever)
@@ -94,9 +120,10 @@ namespace Global.VideoPlayer.Droid
             retriever.SetDataSource(inputStream.FD);
         }
 
-        private Bitmap CreateThumnails(string videoPath, int targetH, int targetW, int timeMs)
+        private Bitmap CreateThumnails(string videoPath, int timeMs)
         {
             Bitmap bitmap = null;
+            int targetH = 120, targetW = 120;
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             try
             {
@@ -149,6 +176,7 @@ namespace Global.VideoPlayer.Droid
             catch (Exception ex)
             {
                 System.Console.WriteLine(ex.Message);
+                throw ex;
             }
             finally
             {
@@ -165,87 +193,29 @@ namespace Global.VideoPlayer.Droid
             return bitmap;
         }
 
-
-        public void GetVideoThumbnail(string videoPath, double videoDuration, int targetH, int targetW, List<TrackImageVM> imageVMs)
-        {
-            if (imageVMs.Count() <= 0)
-                return;
-            int numberOfThumnail = imageVMs.Count();
-            double frameInterval = (videoDuration / numberOfThumnail) * 1000;
-
-            for (int i = 0 ; i < imageVMs.Count(); i++ )
-            {
-                int frameTimeMs = (int)(i * frameInterval);
-                Bitmap thumbnail = CreateThumnails(videoPath, targetH, targetW, frameTimeMs);
-                using (var stream = new MemoryStream())
-                {
-                    thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
-                    byte[] bytes = stream.ToArray();
-                    imageVMs[i].ImgSrc = ImageSource.FromStream(() => new MemoryStream(bytes));
-                }
-            }
-        }
     }
 
-
-
-    public class FFmpegStatistic : Java.Lang.Object, IStatisticsCallback
-    {
-        public void Apply(Statistics stat)
-        {
-            System.Console.WriteLine($"Stat size = {stat.Size} , quality = {stat.VideoQuality}");
-        }
-    }
-
-    public class FFmpegLog : Java.Lang.Object, ILogCallback
-    {
-        public void Apply(Log p0)
-        {
-            System.Console.WriteLine($"{p0.SessionId} {p0.Message}");
-        }
-    }
 
     public class FFmpegCallback : Java.Lang.Object, IFFmpegSessionCompleteCallback
     {
-        Action<bool> OnTrimResulted;
-        public FFmpegCallback(Action<bool> onTrimResulted)
+        Action<bool, string> OnTrimResulted;
+        string OutputPath;
+
+        public FFmpegCallback(Action<bool, string> onTrimResulted, string outputPath)
         {
             OnTrimResulted = onTrimResulted;
+            OutputPath = outputPath;
         }
 
         public void Apply(FFmpegSession session)
         {
             if (session.ReturnCode.IsValueSuccess)
             {
-                OnTrimResulted?.Invoke(true);
+                OnTrimResulted?.Invoke(true, OutputPath);
             }
             else
             {
-                OnTrimResulted?.Invoke(false);
-            }
-        }
-    }
-
-    public class FFProbeCallback : Java.Lang.Object, IFFprobeSessionCompleteCallback
-    {
-        private TaskCompletionSource<double> videoDurationTCS;
-        public FFProbeCallback(TaskCompletionSource<double> videoDurationTCS)
-        {
-            this.videoDurationTCS = videoDurationTCS;
-        }
-
-        public void Apply(FFprobeSession session)
-        {
-            if (session.ReturnCode.IsValueSuccess)
-            {
-                string durationStr = session.GetAllLogsAsString(1000);
-                System.Console.WriteLine(durationStr);
-                double duration = Double.Parse(durationStr);
-                videoDurationTCS.SetResult(duration);
-            }
-            else
-            {
-                videoDurationTCS.SetResult(-1);
+                OnTrimResulted?.Invoke(false, null);
             }
         }
     }
