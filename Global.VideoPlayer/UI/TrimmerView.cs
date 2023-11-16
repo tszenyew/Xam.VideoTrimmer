@@ -173,18 +173,21 @@ namespace Global.VideoPlayer
         {
             mediaPlayer.Pause();
             //Dont trim video less than 1 sec
-            if ((TrimEndTime - TrimStartTime).TotalSeconds < 1)
+            if (mediaDuration < 2)
             {
                 OnTrimResult?.Invoke(true, videoPath);
                 return;
             }
-            else if (TrimStartTime.TotalMilliseconds > 1000)
+            else if ((TrimEndTime - TrimStartTime).TotalMilliseconds < 1000)
             {
-                TrimStartTime = TrimEndTime.Add(new TimeSpan(0, 0, -1));
-            }
-            else
-            {
-                TrimEndTime = TrimStartTime.Add(new TimeSpan(0, 0, 1));
+                if (TrimStartTime.TotalMilliseconds > 1000)
+                {
+                    TrimStartTime = TrimEndTime.Add(new TimeSpan(0, 0, -1));
+                }
+                else
+                {
+                    TrimEndTime = TrimStartTime.Add(new TimeSpan(0, 0, 1));
+                }
             }
             Task.Run(() =>
             {
