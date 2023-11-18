@@ -55,21 +55,30 @@ namespace Global.VideoPlayer.Droid
 
         public void GetVideoThumbnail(string videoPath, double videoDuration, List<TrackImageVM> imageVMs)
         {
-            if (imageVMs.Count() <= 0)
-                return;
-            int numberOfThumnail = imageVMs.Count();
-            double frameInterval = (videoDuration / numberOfThumnail) * 1000;
-
-            for (int i = 0; i < imageVMs.Count(); i++)
+            try
             {
-                int frameTimeMs = (int)(i * frameInterval);
-                Bitmap thumbnail = CreateThumnails(videoPath, frameTimeMs);
-                using (var stream = new MemoryStream())
+                if (imageVMs.Count() <= 0)
+                    return;
+                int numberOfThumnail = imageVMs.Count();
+                double frameInterval = (videoDuration / numberOfThumnail) * 1000;
+
+                for (int i = 0; i < imageVMs.Count(); i++)
                 {
-                    thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
-                    byte[] bytes = stream.ToArray();
-                    imageVMs[i].ImgSrc = ImageSource.FromStream(() => new MemoryStream(bytes));
+                    System.Console.WriteLine($"Getting VideoThumnail {i+1}");
+
+                    int frameTimeMs = (int)(i * frameInterval);
+                    Bitmap thumbnail = CreateThumnails(videoPath, frameTimeMs);
+                    using (var stream = new MemoryStream())
+                    {
+                        thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+                        byte[] bytes = stream.ToArray();
+                        imageVMs[i].ImgSrc = ImageSource.FromStream(() => new MemoryStream(bytes));
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Failed To getVideoThumbnail ex: {ex.Message}");
             }
         }
 

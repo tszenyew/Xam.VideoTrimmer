@@ -8,8 +8,8 @@ namespace Global.VideoPlayer
 	{
 		public bool IsUpperThumb { get; private set; }
 		public PanGestureRecognizer panGesture { get; private set; }
+        TrimmerView trimmerView;
         Polygon indicator;
-
 
         public TrimmerThumb(bool isUpperThumb )
         {
@@ -20,15 +20,17 @@ namespace Global.VideoPlayer
             indicator = GetIndicator();
             panGesture = new PanGestureRecognizer();
 			GestureRecognizers.Add(panGesture);
-            Children.Add(indicator) ;
-		}
+            Children.Add(indicator);
+            SetupIndicatorColor();
+
+        }
 
 
         private Polygon GetIndicator()
         {
             if (!IsUpperThumb)
             {
-                return new Polygon
+                var polygon = new Polygon
                 {
                     Points = new PointCollection
                 {
@@ -41,13 +43,13 @@ namespace Global.VideoPlayer
                     new Point(6, 46),
                     new Point(0, 46),
                 },
-                    Fill = new SolidColorBrush(Color.FromHex(TrimmerView.defaultThumbColor)),
                     StrokeThickness = 0,
                 };
+                return polygon;
             }
             else
             {
-                return new Polygon
+                var polygon = new Polygon
                 {
                     Points = new PointCollection
                 {
@@ -60,14 +62,15 @@ namespace Global.VideoPlayer
                     new Point(3, 3),
                     new Point(0, 3),
                 },
-                    Fill = new SolidColorBrush(Color.FromHex(TrimmerView.defaultThumbColor)),
                     StrokeThickness = 0,
                 };
+                return polygon;
             }
         }
 
         internal void SetupThumb(TrimmerView trimmerView)
         {
+            this.trimmerView = trimmerView;
             if (IsUpperThumb)
             {
                 AbsoluteLayout.SetLayoutFlags(this, AbsoluteLayoutFlags.None);
@@ -79,18 +82,38 @@ namespace Global.VideoPlayer
                     Path = nameof(TrimmerView.UpperThumbX),
                     Mode = BindingMode.OneWay
                 });
+
+                if (indicator != null)
+                {
+                    indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.LowerThumbColor), source: trimmerView));
+                }
             }
             else
             {
                 AbsoluteLayout.SetLayoutFlags(this, AbsoluteLayoutFlags.None);
                 AbsoluteLayout.SetLayoutBounds(this, new Xamarin.Forms.Rectangle(0, -3, 36, 46));
-                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.LowerThumbColor), source: trimmerView));
                 SetBinding(VisualElement.TranslationXProperty, new Binding
                 {
                     Source = trimmerView,
                     Path = nameof(TrimmerView.LowerThumbX),
                     Mode = BindingMode.OneWay
                 });
+            }
+            SetupIndicatorColor();
+        }
+
+        internal void SetupIndicatorColor()
+        {
+            if (indicator == null || trimmerView == null)
+                return;
+
+            if (IsUpperThumb)
+            {
+                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.UpperThumbColor), source: trimmerView));
+            }
+            else
+            {
+                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.LowerThumbColor), source: trimmerView));
             }
         }
     }

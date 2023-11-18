@@ -14,10 +14,20 @@ namespace Global.VideoPlayer
         const double thumbPadding = 18;
         public double maxValue { get; private set; } = 120;
         public double mediaDuration { get; private set; } = 30;
-        public int ImgCount { get; private set; } = -1;
+        public int ImgCount { get; private set; } = 9;
         private string videoPath;
-        int targetH, targetW;
-        internal List<TrackImageVM> TrackImgVM { get; private set; } = new List<TrackImageVM>();
+        internal List<TrackImageVM> TrackImgVM { get; private set; } = new List<TrackImageVM> { 
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(),
+            new TrackImageVM(), 
+        };
+
         MediaStreams mediaInfo;
         internal VideoPlayer mediaPlayer;
 
@@ -34,7 +44,7 @@ namespace Global.VideoPlayer
 
         public static readonly BindableProperty UpperThumbColorProperty =
             BindableProperty.Create(nameof(UpperThumbColor), typeof(Color), typeof(TrimmerView), Color.FromHex(defaultThumbColor),
-                BindingMode.TwoWay);
+                BindingMode.OneWay);
 
         public Color UpperThumbColor
         {
@@ -44,7 +54,7 @@ namespace Global.VideoPlayer
 
         public static readonly BindableProperty LowerThumbColorProperty =
             BindableProperty.Create(nameof(LowerThumbColor), typeof(Color), typeof(TrimmerView), Color.FromHex(defaultThumbColor),
-                BindingMode.TwoWay);
+                BindingMode.OneWay);
 
         public Color LowerThumbColor
         {
@@ -212,7 +222,8 @@ namespace Global.VideoPlayer
         {
             if (width > 0 && Parent is VisualElement parent)
             {
-                ImgCount = (int)((parent.Width - 40) / 40);
+                var maxImgFit = (int)((parent.Width - 40) / 40);
+                ImgCount = maxImgFit > 9 ? 9 : maxImgFit;
                 maxValue = ImgCount * 40;
                 double actualMargin = (parent.Width - maxValue) / 2;
                 this.Padding = new Thickness(actualMargin, 0);
@@ -243,10 +254,10 @@ namespace Global.VideoPlayer
             AbsoluteLayout.SetLayoutBounds(bg, new Rect(0, 0, 1, 40));
             this.Children.Add(bg);
             LowerChild(bg);
-
+            Console.WriteLine("Adding TrackBackground VM");
             for (int i = 0; i < ImgCount; i++)
             {
-                TrackImageVM imgVM = new TrackImageVM();
+                var imgVM = TrackImgVM[i];
                 Image image = new Image
                 {
                     Margin = 0,
@@ -256,10 +267,9 @@ namespace Global.VideoPlayer
                     HorizontalOptions = LayoutOptions.FillAndExpand,
                 };
                 AbsoluteLayout.SetLayoutBounds(image, new Rect(i * 40, 0, 40, 40));
-                Grid a = new Grid();
                 image.SetBinding(Image.SourceProperty, new Binding(path: nameof(imgVM.ImgSrc), source: imgVM));
                 this.Children.Add(image);
-                TrackImgVM.Add(imgVM);
+                Console.WriteLine($"TrackBackground VM {i+1} added");
             }
         }
 

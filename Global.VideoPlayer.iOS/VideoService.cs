@@ -46,27 +46,35 @@ namespace Global.VideoPlayer.iOS
 
         public void GetVideoThumbnail(string videoPath, double videoDuration, List<TrackImageVM> imageVMs)
         {
-            if (imageVMs.Count() <= 0)
-                return;
-            int numberOfThumnail = imageVMs.Count();
-            double frameInterval = videoDuration / numberOfThumnail;
-            AVAsset asset = AVAsset.FromUrl(NSUrl.CreateFileUrl(videoPath, null));
-            var imgGenerator = new AVAssetImageGenerator(asset: asset);
-            imgGenerator.AppliesPreferredTrackTransform = true;
-
-            for (int i = 0; i < imageVMs.Count(); i++)
+            try
             {
-                double frameTime = i * frameInterval;
-                CMTime actualTime;
-                NSError err;
-                CGImage cGImage = imgGenerator.CopyCGImageAtTime(CMTime.FromSeconds(frameTime, 600), out actualTime, out err);
-                if (err != null)
+                if (imageVMs.Count() <= 0)
+                    return;
+                int numberOfThumnail = imageVMs.Count();
+                double frameInterval = videoDuration / numberOfThumnail;
+                AVAsset asset = AVAsset.FromUrl(NSUrl.CreateFileUrl(videoPath, null));
+                var imgGenerator = new AVAssetImageGenerator(asset: asset);
+                imgGenerator.AppliesPreferredTrackTransform = true;
+
+                for (int i = 0; i < imageVMs.Count(); i++)
                 {
-                    Console.WriteLine(err);
-                    continue;
+                    System.Console.WriteLine($"Getting VideoThumnail {i + 1}");
+                    double frameTime = i * frameInterval;
+                    CMTime actualTime;
+                    NSError err;
+                    CGImage cGImage = imgGenerator.CopyCGImageAtTime(CMTime.FromSeconds(frameTime, 600), out actualTime, out err);
+                    if (err != null)
+                    {
+                        Console.WriteLine(err);
+                        continue;
+                    }
+                    var thumbnail = new UIImage(cGImage);
+                    imageVMs[i].ImgSrc = ImageSource.FromStream(() => thumbnail.AsPNG().AsStream());
                 }
-                var thumbnail = new UIImage(cGImage);
-                imageVMs[i].ImgSrc = ImageSource.FromStream(() => thumbnail.AsPNG().AsStream());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Failed To getVideoThumbnail ex: {ex.Message}");
             }
         }
 
