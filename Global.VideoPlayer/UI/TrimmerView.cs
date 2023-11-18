@@ -14,20 +14,10 @@ namespace Global.VideoPlayer
         const double thumbPadding = 18;
         public double maxValue { get; private set; } = 120;
         public double mediaDuration { get; private set; } = 30;
-        public int ImgCount { get; private set; } = 9;
+        public int ImgCount { get; private set; } = -1;
         private string videoPath;
-        internal List<TrackImageVM> TrackImgVM { get; private set; } = new List<TrackImageVM> { 
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(),
-            new TrackImageVM(), 
-        };
-
+        int targetH, targetW;
+        internal List<TrackImageVM> TrackImgVM { get; private set; } = new List<TrackImageVM>();
         MediaStreams mediaInfo;
         internal VideoPlayer mediaPlayer;
 
@@ -43,8 +33,14 @@ namespace Global.VideoPlayer
         public event EventHandler OnLowerThumbPanned;
 
         public static readonly BindableProperty UpperThumbColorProperty =
-            BindableProperty.Create(nameof(UpperThumbColor), typeof(Color), typeof(TrimmerView), Color.FromHex(defaultThumbColor),
-                BindingMode.OneWay);
+            BindableProperty.Create(nameof(UpperThumbColor), typeof(Color), typeof(TrimmerView), Color.FromHex(defaultThumbColor), BindingMode.OneWay, propertyChanged:
+                                (bindable, oldValue, newValue) =>
+                                {
+                                    if (bindable is TrimmerView view)
+                                    {
+                                        view.UpperThumb?.SetupIndicatorColor((Color)newValue);
+                                    }
+                                });
 
         public Color UpperThumbColor
         {
@@ -53,8 +49,14 @@ namespace Global.VideoPlayer
         }
 
         public static readonly BindableProperty LowerThumbColorProperty =
-            BindableProperty.Create(nameof(LowerThumbColor), typeof(Color), typeof(TrimmerView), Color.FromHex(defaultThumbColor),
-                BindingMode.OneWay);
+            BindableProperty.Create(nameof(LowerThumbColor), typeof(Color), typeof(TrimmerView), Color.FromHex(defaultThumbColor), BindingMode.OneWay, propertyChanged:
+                                (bindable, oldValue, newValue) =>
+                                {
+                                    if (bindable is TrimmerView view)
+                                    {
+                                        view.LowerThumb?.SetupIndicatorColor((Color)newValue);
+                                    }
+                                });
 
         public Color LowerThumbColor
         {
@@ -222,8 +224,7 @@ namespace Global.VideoPlayer
         {
             if (width > 0 && Parent is VisualElement parent)
             {
-                var maxImgFit = (int)((parent.Width - 40) / 40);
-                ImgCount = maxImgFit > 9 ? 9 : maxImgFit;
+                ImgCount = (int)((parent.Width - 40) / 40);
                 maxValue = ImgCount * 40;
                 double actualMargin = (parent.Width - maxValue) / 2;
                 this.Padding = new Thickness(actualMargin, 0);
@@ -254,10 +255,9 @@ namespace Global.VideoPlayer
             AbsoluteLayout.SetLayoutBounds(bg, new Rect(0, 0, 1, 40));
             this.Children.Add(bg);
             LowerChild(bg);
-            Console.WriteLine("Adding TrackBackground VM");
             for (int i = 0; i < ImgCount; i++)
             {
-                var imgVM = TrackImgVM[i];
+                TrackImageVM imgVM = new TrackImageVM();
                 Image image = new Image
                 {
                     Margin = 0,
@@ -269,8 +269,9 @@ namespace Global.VideoPlayer
                 AbsoluteLayout.SetLayoutBounds(image, new Rect(i * 40, 0, 40, 40));
                 image.SetBinding(Image.SourceProperty, new Binding(path: nameof(imgVM.ImgSrc), source: imgVM));
                 this.Children.Add(image);
-                Console.WriteLine($"TrackBackground VM {i+1} added");
+                TrackImgVM.Add(imgVM);
             }
+            LoadThumnail();
         }
 
         private void AddThumb()
@@ -456,10 +457,13 @@ namespace Global.VideoPlayer
 
         private void LoadThumnail()
         {
-            Task.Run(() =>
+            if (string.IsNullOrWhiteSpace(videoPath) && mediaInfo != null && TrackImgVM.Count > 0)
             {
-                DependencyService.Get<IVideoService>().GetVideoThumbnail(videoPath, mediaDuration, TrackImgVM);
-            });
+                Task.Run(() =>
+                {
+                    DependencyService.Get<IVideoService>().GetVideoThumbnail(videoPath, mediaDuration, TrackImgVM);
+                });
+            }
         }
 
         private void UpdateTrimMedia()

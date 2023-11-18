@@ -8,8 +8,8 @@ namespace Global.VideoPlayer
 	{
 		public bool IsUpperThumb { get; private set; }
 		public PanGestureRecognizer panGesture { get; private set; }
-        TrimmerView trimmerView;
         Polygon indicator;
+        TrimmerView trimmerView;
 
         public TrimmerThumb(bool isUpperThumb )
         {
@@ -20,17 +20,15 @@ namespace Global.VideoPlayer
             indicator = GetIndicator();
             panGesture = new PanGestureRecognizer();
 			GestureRecognizers.Add(panGesture);
-            Children.Add(indicator);
-            SetupIndicatorColor();
-
-        }
+            Children.Add(indicator) ;
+		}
 
 
         private Polygon GetIndicator()
         {
             if (!IsUpperThumb)
             {
-                var polygon = new Polygon
+                return new Polygon
                 {
                     Points = new PointCollection
                 {
@@ -43,13 +41,13 @@ namespace Global.VideoPlayer
                     new Point(6, 46),
                     new Point(0, 46),
                 },
+                    Fill = new SolidColorBrush(trimmerView?.UpperThumbColor ?? Color.FromHex(TrimmerView.defaultThumbColor)),
                     StrokeThickness = 0,
                 };
-                return polygon;
             }
             else
             {
-                var polygon = new Polygon
+                return new Polygon
                 {
                     Points = new PointCollection
                 {
@@ -62,9 +60,9 @@ namespace Global.VideoPlayer
                     new Point(3, 3),
                     new Point(0, 3),
                 },
+                    Fill = new SolidColorBrush(trimmerView?.LowerThumbColor ?? Color.FromHex(TrimmerView.defaultThumbColor)),
                     StrokeThickness = 0,
                 };
-                return polygon;
             }
         }
 
@@ -75,23 +73,19 @@ namespace Global.VideoPlayer
             {
                 AbsoluteLayout.SetLayoutFlags(this, AbsoluteLayoutFlags.None);
                 AbsoluteLayout.SetLayoutBounds(this, new Xamarin.Forms.Rectangle(0, -3, 36, 46));
-                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.UpperThumbColor), source: trimmerView));
+                SetupIndicatorColor(trimmerView.UpperThumbColor);
                 SetBinding(VisualElement.TranslationXProperty, new Binding
                 {
                     Source = trimmerView,
                     Path = nameof(TrimmerView.UpperThumbX),
                     Mode = BindingMode.OneWay
                 });
-
-                if (indicator != null)
-                {
-                    indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.LowerThumbColor), source: trimmerView));
-                }
             }
             else
             {
                 AbsoluteLayout.SetLayoutFlags(this, AbsoluteLayoutFlags.None);
                 AbsoluteLayout.SetLayoutBounds(this, new Xamarin.Forms.Rectangle(0, -3, 36, 46));
+                SetupIndicatorColor(trimmerView.LowerThumbColor);
                 SetBinding(VisualElement.TranslationXProperty, new Binding
                 {
                     Source = trimmerView,
@@ -99,22 +93,14 @@ namespace Global.VideoPlayer
                     Mode = BindingMode.OneWay
                 });
             }
-            SetupIndicatorColor();
         }
 
-        internal void SetupIndicatorColor()
+        internal void SetupIndicatorColor(Color color)
         {
-            if (indicator == null || trimmerView == null)
+            if (indicator == null)
                 return;
 
-            if (IsUpperThumb)
-            {
-                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.UpperThumbColor), source: trimmerView));
-            }
-            else
-            {
-                indicator.SetBinding(Polygon.FillProperty, new Binding(nameof(trimmerView.LowerThumbColor), source: trimmerView));
-            }
+            indicator.Fill = new SolidColorBrush(color);
         }
     }
 }
