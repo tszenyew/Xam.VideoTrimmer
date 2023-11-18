@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.CommunityToolkit.Extensions;
+using Xamarin.CommunityToolkit.UI.Views;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using static Xamarin.Essentials.Permissions;
@@ -50,6 +53,16 @@ namespace Global.VideoPlayer.Sample
                 Console.WriteLine($"CapturePhotoAsync THREW: {ex.Message}");
             }
             
+        }
+
+        async void CaptureButton_Clicked(System.Object sender, System.EventArgs e)
+        {
+            var result = await MediaPicker.CaptureVideoAsync();
+            if (result != null)
+            {
+                await Navigation.PushAsync(new VideoTrimmingPage(result));
+                return;
+            }
         }
 
         private async Task<bool> CheckPermission()

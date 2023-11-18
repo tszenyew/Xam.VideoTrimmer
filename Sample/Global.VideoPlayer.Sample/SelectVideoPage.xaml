@@ -24,7 +24,11 @@
                 HorizontalOptions="Center"
                 Text="Select"
                 VerticalOptions="Center " />
-
+        <Button Padding="20,15"
+                Clicked="CaptureButton_Clicked"
+                HorizontalOptions="Center"
+                Text="Capture Video"
+                VerticalOptions="Center " />
     </StackLayout>
 
 </ContentPage>
